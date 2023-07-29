@@ -10,11 +10,10 @@ class QRcode:
         pass
 
     
-    def __init__(self, data='Example', correction_level='M', mask=None):
+    def __init__(self, data="Example", correction_level="M", mask=None):
         self.data = data
         self.correction_level = correction_level
         self.mask = mask
-        self.encoding_method = '0100' # Always bytes mode
 
         # Step 1 - Encoding the data
         self.encoded_data = self.encode_data(self.data)
@@ -36,88 +35,93 @@ class QRcode:
         # Step 6 - Placement of information on the QR code
         self.qr = self.create_qr_with_best_mask(self.resulting_data, self.version, self.correction_level, self.mask)
 
-        
-    def encode_data(self, data):
+    @staticmethod
+    def encode_data(data):
         data = list(data.encode('utf-8')) # Get bytes
         data = [bin(piece)[2:].zfill(8) for piece in data] # Transform into binary
         data = reduce(lambda x, y: x + y, data) # Concatenate into a single binary string
 
         return data
 
-
-    def determine_version(self, data, correction_level):
+    @staticmethod
+    def determine_version(data, correction_level):
         '''
         Determines optimal QR version (size) depending on the size of data
         '''
-        
-        L = {1: 152, 2: 272, 3: 440, 4: 640,
-             5: 864, 6: 1088, 7: 1248, 8: 1552,
-             9: 1856, 10: 2192, 11: 2592, 12: 2960,
-             13: 3424, 14: 3688, 15: 4184, 16: 4712,
-             17: 5176, 18: 5768, 19: 6360, 20: 6888,
-             21: 7456, 22: 8048, 23: 8752, 24: 9392,
-             25: 10208, 26: 10960, 27: 11744, 28: 12248,
-             29: 13048, 30: 13880, 31: 14744, 32: 15640,
-             33: 16568, 34: 17528, 35: 18448, 36: 19472,
-             37: 20528, 38: 21616, 39: 22496, 40: 23648}
 
-        M = {1: 128, 2: 224, 3: 352, 4: 512,
-             5: 688, 6: 864, 7: 992, 8: 1232,
-             9: 1456, 10: 1728, 11: 2032, 12: 2320,
-             13: 2672, 14: 2920, 15: 3320, 16: 3624,
-             17: 4056, 18: 4504, 19: 5016, 20: 5352,
-             21: 5712, 22: 6256, 23: 6880, 24: 7312,
-             25: 8000, 26: 8496, 27: 9024, 28: 9544,
-             29: 10136, 30: 10984, 31: 11640, 32: 12328,
-             33: 13048, 34: 13800, 35: 14496, 36: 15312,
-             37: 15936, 38: 16816, 39: 17728, 40: 18672}
+        versions = {
+            "L": {
+                1: 152, 2: 272, 3: 440, 4: 640,
+                5: 864, 6: 1088, 7: 1248, 8: 1552,
+                9: 1856, 10: 2192, 11: 2592, 12: 2960,
+                13: 3424, 14: 3688, 15: 4184, 16: 4712,
+                17: 5176, 18: 5768, 19: 6360, 20: 6888,
+                21: 7456, 22: 8048, 23: 8752, 24: 9392,
+                25: 10208, 26: 10960, 27: 11744, 28: 12248,
+                29: 13048, 30: 13880, 31: 14744, 32: 15640,
+                33: 16568, 34: 17528, 35: 18448, 36: 19472,
+                37: 20528, 38: 21616, 39: 22496, 40: 23648,
+            },
+            "M": {
+                1: 128, 2: 224, 3: 352, 4: 512,
+                5: 688, 6: 864, 7: 992, 8: 1232,
+                9: 1456, 10: 1728, 11: 2032, 12: 2320,
+                13: 2672, 14: 2920, 15: 3320, 16: 3624,
+                17: 4056, 18: 4504, 19: 5016, 20: 5352,
+                21: 5712, 22: 6256, 23: 6880, 24: 7312,
+                25: 8000, 26: 8496, 27: 9024, 28: 9544,
+                29: 10136, 30: 10984, 31: 11640, 32: 12328,
+                33: 13048, 34: 13800, 35: 14496, 36: 15312,
+                37: 15936, 38: 16816, 39: 17728, 40: 18672,
+            },
+            "Q": {
+                1: 104, 2: 176, 3: 272, 4: 384,
+                5: 496, 6: 608, 7: 704, 8: 880,
+                9: 1056, 10: 1232, 11: 1440, 12: 1648,
+                13: 1952, 14: 2088, 15: 2360, 16: 2600,
+                17: 2936, 18: 3176, 19: 3560, 20: 3880,
+                21: 4096, 22: 4544, 23: 4912, 24: 5312,
+                25: 5744, 26: 6032, 27: 6464, 28: 6968,
+                29: 7288, 30: 7880, 31: 8264, 32: 8920,
+                33: 9368, 34: 9848, 35: 10288, 36: 10832,
+                37: 11408, 38: 12016, 39: 12656, 40: 13328,
+            },
+            "H": {
+                1: 72, 2: 128, 3: 208, 4: 288,
+                5: 368, 6: 480, 7: 528, 8: 688,
+                9: 800, 10: 976, 11: 1120, 12: 1264,
+                13: 1440, 14: 1576, 15: 1784, 16: 2024,
+                17: 2264, 18: 2504, 19: 2728, 20: 3080,
+                21: 3248, 22: 2526, 23: 3712, 24: 4112,
+                25: 4304, 26: 4768, 27: 5024, 28: 5288,
+                29: 5608, 30: 5960, 31: 6344, 32: 6760,
+                33: 7208, 34: 7688, 35: 7888, 36: 8432,
+                37: 8768, 38: 9136, 39: 9776, 40: 10208
+            }
+        }
 
-        Q = {1: 104, 2: 176, 3: 272, 4: 384,
-             5: 496, 6: 608, 7: 704, 8: 880,
-             9: 1056, 10: 1232, 11: 1440, 12: 1648,
-             13: 1952, 14: 2088, 15: 2360, 16: 2600,
-             17: 2936, 18: 3176, 19: 3560, 20: 3880,
-             21: 4096, 22: 4544, 23: 4912, 24: 5312,
-             25: 5744, 26: 6032, 27: 6464, 28: 6968,
-             29: 7288, 30: 7880, 31: 8264, 32: 8920,
-             33: 9368, 34: 9848, 35: 10288, 36: 10832,
-             37: 11408, 38: 12016, 39: 12656, 40: 13328}
+        items = versions[correction_level].items()
 
-        H = {1: 72, 2: 128, 3: 208, 4: 288,
-             5: 368, 6: 480, 7: 528, 8: 688,
-             9: 800, 10: 976, 11: 1120, 12: 1264,
-             13: 1440, 14: 1576, 15: 1784, 16: 2024,
-             17: 2264, 18: 2504, 19: 2728, 20: 3080,
-             21: 3248, 22: 2526, 23: 3712, 24: 4112,
-             25: 4304, 26: 4768, 27: 5024, 28: 5288,
-             29: 5608, 30: 5960, 31: 6344, 32: 6760,
-             33: 7208, 34: 7688, 35: 7888, 36: 8432,
-             37: 8768, 38: 9136, 39: 9776, 40: 10208}
-
-        correction_level = eval(correction_level)
-
-        items = correction_level.items()
-
-        version = [item[0] for item in items if item[1] > len(data)][0]
-        max_bits = correction_level[version]
+        version = [item[0] for item in items if item[1] > len(data)][0] # Can binary search here, but doesn't make much difference
+        max_bits = versions[correction_level][version]
 
         return version, max_bits
 
-
-    def bit_string_into_decimal_bytes(self, string):
+    @staticmethod
+    def bit_string_into_decimal_bytes(string):
         '''
         Example: 001010110010101001010101 -> [43, 42, 85]
         '''
 
-        assert len(string) % 8 == 0
+        assert len(string) % 8 == 0 # Could possibly zfill here instead of throwing error
 
         string = [string[i:i + 8] for i in range(0, len(string), 8)]
         string = [int(i, 2) for i in string]
 
         return string
 
-
-    def add_service_fields(self, data, version, max_bits):
+    @staticmethod
+    def add_service_fields(data, version, max_bits):
         '''
         Adding service field in the beginning of the data bits string
         Also returns updated version in case it's changed
@@ -126,10 +130,7 @@ class QRcode:
         coding_method_field = '0100' # We're using bytes input mode
                                      # TODO: choose optimal mode, not always bytes
 
-        if version < 10:
-            data_amount_length = 8
-        else:
-            data_amount_length = 16
+        data_amount_length = 8 if version < 10 else 16
 
         byte_data_length = len(data) // 8
 
@@ -156,8 +157,8 @@ class QRcode:
 
         return new_data, version
 
-
-    def fill_data_until_required_length(self, data, max_bits):
+    @staticmethod
+    def fill_data_until_required_length(data, max_bits):
         '''
         Fills the data with zeros until its length is a multiple of 8
         Then fills with alternating bytes 11101100 and 00010001 until length max_bits is reached
@@ -168,7 +169,7 @@ class QRcode:
         data += '0' * need_zeros
 
         counter = 0
-        while len(data) < max_bits:
+        while len(data) < max_bits: # This can be done much better obviously
             if counter % 2 == 0:
                 data += '11101100'
             else:
@@ -177,8 +178,8 @@ class QRcode:
 
         return data
 
-
-    def split_data_into_blocks(self, data, correction_level, version):
+    @staticmethod
+    def split_data_into_blocks(data, correction_level, version):
         '''
         Splits data into a certain amount of equal pieces,
         which will later be used to create correction blocks
@@ -228,11 +229,10 @@ class QRcode:
 
         return data_blocks
 
-
     def create_correction_block(self, block, correction_level, version):
         '''
         Creates a correction block for the block given
-        Uses Reed–Solomon error correction algorithm
+        Uses Reed-Solomon error correction algorithm
         '''
         
         L = {1: 7, 2: 10, 3: 15, 4: 20, 5: 26, 6: 18, 7: 20, 8: 24,
@@ -374,8 +374,8 @@ class QRcode:
 
         return prepared_array
 
-
-    def combine_blocks(self, data_blocks, correction_blocks):
+    @staticmethod
+    def combine_blocks(data_blocks, correction_blocks):
         '''
         Combines data and correction blocks together
 
@@ -384,7 +384,7 @@ class QRcode:
         <(m — 1)-th byte 1st data block>...<(m — 1)-th byte n-th data block><m-th byte k-th data block>...
         <m-th byte n-th data block><1st byte 1st correction block><1st byte 2nd correction block>...
         <1st byte n-th correction block><2nd byte 1st correction block>...
-        <lst byte 1st correction block>...<lst byte n-th блока correction block>
+        <lst byte 1st correction block>...<lst byte n-th correction block>
 
         Here n — number of data blocks
              m — normal amount of bytes in a data block
@@ -408,8 +408,8 @@ class QRcode:
 
         return resulting_data
 
-
-    def add_search_patterns(self, qr):
+    @staticmethod
+    def add_search_patterns(qr):
         '''
         Creates three squares in the corners of the QR
         '''
@@ -417,6 +417,7 @@ class QRcode:
         qr = deepcopy(qr)
         size = len(qr[0])
 
+        # All this can be improved to be just one loop
         for x in range(8):
             for y in range(8):
                 qr[y][x] = 0
@@ -443,8 +444,8 @@ class QRcode:
 
         return qr
 
-
-    def add_sync_lanes(self, qr):
+    @staticmethod
+    def add_sync_lanes(qr):
         '''
         Creates sync lanes (alternating black/white lines connecting the search patterns)
         '''
@@ -462,8 +463,8 @@ class QRcode:
 
         return qr
 
-
-    def add_leveling_patterns(self, qr, version):
+    @staticmethod
+    def add_leveling_patterns(qr, version):
         '''
         Creates smaller squares in different places
         '''
@@ -537,8 +538,8 @@ class QRcode:
 
         return qr
 
-
-    def add_version_code(self, qr, version):
+    @staticmethod
+    def add_version_code(qr, version):
         '''
         Starting from version 7 there are special places near bottom-left and upper-right corners for the version code
         '''
@@ -594,8 +595,8 @@ class QRcode:
 
         return qr
 
-
-    def add_mask_and_correction_level_codes(self, qr, version, correction_level, mask_number):
+    @staticmethod
+    def add_mask_and_correction_level_codes(qr, correction_level, mask_number):
         qr = deepcopy(qr)
         size = len(qr[0])
 
@@ -658,8 +659,8 @@ class QRcode:
 
         return qr
 
-
-    def fill_qr_with_data(self, qr, data, mask):
+    @staticmethod
+    def fill_qr_with_data(qr, data, mask):
         '''
         Finally filling all space left with our data
         '''
@@ -714,7 +715,6 @@ class QRcode:
 
         return qr
 
-
     def create_QR_code(self, resulting_data, version, correction_level, mask_number):
         '''
         Creates a 2D binary list which will be the QR
@@ -741,11 +741,10 @@ class QRcode:
         qr = self.add_sync_lanes(qr)
         qr = self.add_leveling_patterns(qr, version)
         qr = self.add_version_code(qr, version)
-        qr = self.add_mask_and_correction_level_codes(qr, version, correction_level, mask_number)
+        qr = self.add_mask_and_correction_level_codes(qr, correction_level, mask_number)
         qr = self.fill_qr_with_data(qr, resulting_data, mask)
 
         return qr
-
 
     def save(self, res):
         size = len(self.qr[0])
@@ -772,8 +771,8 @@ class QRcode:
 
         print('\nQR code succesfully created!')
 
-
-    def score_rule_1_horizontal(self, qr):
+    @staticmethod
+    def score_rule_1_horizontal(qr):
         score = 0
         size = len(qr[0])
         
@@ -790,13 +789,12 @@ class QRcode:
 
         return score
 
-
     def score_rule_1_vertical(self, qr):
         # It's easier to simply transpose and apply previous function
         return self.score_rule_1_horizontal([list(line) for line in numpy_array(qr).transpose()])
 
-
-    def score_rule_2(self, qr):
+    @staticmethod
+    def score_rule_2(qr):
         score = 0
         size = len(qr[0])
 
@@ -809,8 +807,8 @@ class QRcode:
 
         return score
 
-
-    def score_rule_3_horizontal(self, qr):
+    @staticmethod
+    def score_rule_3_horizontal(qr):
         score = 0
         size = len(qr[0])
 
@@ -821,13 +819,12 @@ class QRcode:
 
         return score
 
-
     def score_rule_3_vertical(self, qr):
         # It's easier to simply transpose and apply previous function
         return self.score_rule_3_horizontal([list(line) for line in numpy_array(qr).transpose()])
 
-
-    def score_rule_4(self, qr):
+    @staticmethod
+    def score_rule_4(qr):
         size = len(qr[0])
 
         total_black = sum([line.count('1') for line in qr])
@@ -839,9 +836,8 @@ class QRcode:
 
         return score
 
-
     def qr_score(self, qr):
-        scores = []
+        scores = [] # Why... Guess i wanted to know separate scores for debugging purposes
 
         scores.append(self.score_rule_1_horizontal(qr))
         scores.append(self.score_rule_1_vertical(qr))
@@ -851,7 +847,6 @@ class QRcode:
         scores.append(self.score_rule_4(qr))
 
         return sum(scores)
-
 
     def create_qr_with_best_mask(self, data, version, correction_level, mask=None):
         all_qr = []
@@ -870,6 +865,5 @@ class QRcode:
 
 
 if __name__ == '__main__':
-    # for debugging
-    a = QRcode(data='Example data', correction_level='M')
+    a = QRcode(data='Cringe example data', correction_level='M')
     a.save(500)
